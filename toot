@@ -1,0 +1,130 @@
+#!/usr/bin/env bash
+# set -u
+# set -eo pipefail
+
+# ========== Tootils ==========
+#
+# Tootils works as a dispatcher of *Operations* ($op), which are handled
+# by their respective modules and visually presented to the user
+# surrounded by text that displays the external command ran.
+# This is handled by runOP() and runOpBatch().
+#
+# Functions starting with a capital letter are the entry point
+# of the module with the same name.
+#
+# Function signature is expressed as the first group of lines
+# at the top of the function.
+#
+
+declare op=$1
+shift
+
+#shellcheck disable=SC2034
+declare -A conf
+declare SYSTEM HERE configDir configFile configFileBackup
+
+# ===== Essential functions =====
+
+erro() {
+    echo "$C_RED!$C_RESET${*}" >&2
+    return 1
+}
+
+fatal() {
+    echo "$C_RED!$C_RESET${*}" >&2
+    exit 1
+}
+
+#shellcheck disable=SC1090
+loadModule() {
+    local mod="$HERE/tootils_modules/tt_$1.sh"
+
+    source "$mod" 2>/dev/null || fatal "Could not load module: $mod"
+}
+
+canonicalPath() {
+    local path=$1
+
+    local oldPath
+    while true; do
+        oldPath=$path
+        path=$(readlink -e -- "$path")
+        (( $? )) && return 1
+        [[ $path == "$oldPath" ]] && break
+    done
+
+    echo "$path"
+}
+
+# ========== Main body ==========
+
+# Tootils path
+HERE=$(canonicalPath "$0")
+HERE=${HERE%/*} # dirname
+
+# Include <stdlib.h>
+loadModule "lib"
+
+# System recognition
+if command -v cygpath &>/dev/null; then
+    SYSTEM=win
+else
+    SYSTEM=lin
+fi
+
+# Configuration logic
+if [[ -z $XDG_CONFIG_HOME ]]; then
+    XDG_CONFIG_HOME="$HOME/.config"
+elif [[ $SYSTEM == 'win' ]]; then
+    XDG_CONFIG_HOME=$(cygpath -u "$XDG_CONFIG_HOME")
+fi
+
+configDir="$XDG_CONFIG_HOME/tootils"
+configFile="$configDir/tootils.conf"
+configFileBackup="$configDir/backup.conf"
+
+# this could be improved as it looks the dirtiest of all hehe
+# oh, I know, I'll make a `tootils.conf.template` and copy its data
+if [[ ! -f $configFile ]]; then
+    mkdir -p "$configDir"
+    touch "$configFile"
+    (( $? )) && fatal "Could not create configuration file at location: $configFile"
+
+    echo -e "# Tootils fresh config\n# Comment lines start with #\n# Fill the following required entries:\n\nbackupRoot=\n" > "$configFile"
+
+    echo "Configuration file created at location: $configFile"
+    echo "Please set it up with your desired values and relaunch Tootils."
+    exit 0
+fi
+# hastily written. might be fine though
+if [[ ! -f $configFileBackup ]]; then
+    touch "$configFileBackup"
+    (( $? )) && fatal "Could not create configuration file at location: $configFileBackup"
+fi
+
+loadConfig "conf" "backupRoot" "" < "$configFile"
+
+# Print the title
+echo " ${C_REDBBL}-Tootils-${C_RESET}"
+
+# Main
+case "$op" in
+    bk|bkg|bkd|bkdg|back)
+        loadModule "backup"
+        Backup "$op" "$@"
+        ;;
+    help)
+        loadModule "help"
+        Help "$@"
+        ;;
+    "")
+        # to be improved
+        # this should and will print usage information instead of crying
+        echo "usage:"
+        echo "    'toot <subcommand> [arg]'"
+        echo "usage and help under construction. yeesh!"
+        ;;
+    *)
+        erro "Unknown Tootils command: $op"
+        ;;
+esac
