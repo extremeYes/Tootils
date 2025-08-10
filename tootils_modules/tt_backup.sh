@@ -21,6 +21,9 @@ Backup() {
         back|backg)
             bk-batch "$op"
             ;;
+        *)
+            fatal-assert "Invalid operation name in Backup: $op"
+            ;;
     esac
 }
 
@@ -30,10 +33,10 @@ bk-batch() {
     local list op_i
 
     case "$op" in
-        "back")
+        back)
             op_i=bk
             ;;
-        "backg")
+        backg)
             op_i=bkg
             ;;
         *)
@@ -41,7 +44,7 @@ bk-batch() {
             ;;
     esac
 
-    file-to-array list < "$config_file_backup"
+    file-to-array list < "$file_conf_backup"
 
     print-batch-head "$op"
 

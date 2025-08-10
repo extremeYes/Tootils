@@ -9,7 +9,7 @@ PrintHelp() {
 			# fi
 			# cat receives the text block below as its standard input.
 			# The '-' in '<<-' is the key to allowing indentation.
-			cat <<-CESTFINI
+			cat <<-EOF
 				Usage: tt foo [options]
 
 				It allows you to do this thing and this other thing.
@@ -18,21 +18,21 @@ PrintHelp() {
 					Tootils works like bar when biz. This note is even
 					indented further, and it will be preserved correctly.
 
-			CESTFINI
+			EOF
 			;;
 
 		bar)
-			cat <<-CESTFINI
+			cat <<-EOF
 				Usage: tt bar [filename]
 
 				The 'bar' command is for frobbing the widgets. Ensure that
 				the input file is correctly formatted.
 
-			CESTFINI
+			EOF
 			;;
 
 		"")
-			cat <<-CESTFINI
+			cat <<-EOF
 				Tootils Help
 
 				Usage: tt [command]
@@ -43,7 +43,7 @@ PrintHelp() {
 					backup  - Backs up all configured folders.
 
 				Run 'tt help [command]' for more details.
-			CESTFINI
+			EOF
 			;;
 		*)
 			erro "unknown command bro"

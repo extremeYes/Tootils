@@ -47,7 +47,7 @@ SEPARATOR='~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~'
 
 # These three functions are for informative output regarding Tootils operations
 run-op() {
-    local op="$1"
+    local op=$1
     # operation == $@
     shift
 
@@ -61,14 +61,14 @@ run-op() {
 }
 
 print-batch-head() {
-    local op="$1"
+    local op=$1
 
     echo "$C_GREEN_B$SEPARATOR"
     echo "Tootils Running Batch: $C_UNDERLINE${op}$C_RESET"
 }
 
 print-batch-tail() {
-    local op="$1"
+    local op=$1
 
     echo "${C_GREEN_B}Tootils Ran Batch: $C_UNDERLINE${op}$C_NOT_UNDERLINE"
     echo "$SEPARATOR$C_RESET"
