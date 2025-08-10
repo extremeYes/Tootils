@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # set -u
-# set -eo pipefail
+set -eo pipefail
 
 # ========== Tootils ==========
 #
@@ -21,7 +21,7 @@ shift
 
 #shellcheck disable=SC2034
 declare -A conf
-declare SYSTEM HERE configDir configFile configFileBackup
+declare SYSTEM HERE config_dir config_file config_file_backup
 
 # ===== Essential functions =====
 
@@ -35,22 +35,27 @@ fatal() {
     exit 1
 }
 
+fatal-assert() {
+    erro " - Fatal Assertion Failure (bug):"
+    fatal "$*"
+}
+
 #shellcheck disable=SC1090
-loadModule() {
+load-module() {
     local mod="$HERE/tootils_modules/tt_$1.sh"
 
     source "$mod" 2>/dev/null || fatal "Could not load module: $mod"
 }
 
-canonicalPath() {
+canonical-path() {
     local path=$1
 
-    local oldPath
+    local old_path
     while true; do
-        oldPath=$path
+        old_path=$path
         path=$(readlink -e -- "$path")
         (( $? )) && return 1
-        [[ $path == "$oldPath" ]] && break
+        [[ $path == "$old_path" ]] && break
     done
 
     echo "$path"
@@ -59,11 +64,11 @@ canonicalPath() {
 # ========== Main body ==========
 
 # Tootils path
-HERE=$(canonicalPath "$0")
+HERE=$(canonical-path "$0")
 HERE=${HERE%/*} # dirname
 
 # Include <stdlib.h>
-loadModule "lib"
+load-module "lib"
 
 # System recognition
 if command -v cygpath &>/dev/null; then
@@ -79,42 +84,42 @@ elif [[ $SYSTEM == 'win' ]]; then
     XDG_CONFIG_HOME=$(cygpath -u "$XDG_CONFIG_HOME")
 fi
 
-configDir="$XDG_CONFIG_HOME/tootils"
-configFile="$configDir/tootils.conf"
-configFileBackup="$configDir/backup.conf"
+config_dir="$XDG_CONFIG_HOME/tootils"
+config_file="$config_dir/tootils.conf"
+config_file_backup="$config_dir/backup.conf"
 
 # this could be improved as it looks the dirtiest of all hehe
 # oh, I know, I'll make a `tootils.conf.template` and copy its data
-if [[ ! -f $configFile ]]; then
-    mkdir -p "$configDir"
-    touch "$configFile"
-    (( $? )) && fatal "Could not create configuration file at location: $configFile"
+if [[ ! -f $config_file ]]; then
+    mkdir -p "$config_dir"
+    touch "$config_file"
+    (( $? )) && fatal "Could not create configuration file at location: $config_file"
 
-    echo -e "# Tootils fresh config\n# Comment lines start with #\n# Fill the following required entries:\n\nbackupRoot=\n" > "$configFile"
+    echo -e "# Tootils fresh config\n# Comment lines start with #\n# Fill the following required entries:\n\nbackup_root=\n" > "$config_file"
 
-    echo "Configuration file created at location: $configFile"
+    echo "Configuration file created at location: $config_file"
     echo "Please set it up with your desired values and relaunch Tootils."
     exit 0
 fi
 # hastily written. might be fine though
-if [[ ! -f $configFileBackup ]]; then
-    touch "$configFileBackup"
-    (( $? )) && fatal "Could not create configuration file at location: $configFileBackup"
+if [[ ! -f $config_file_backup ]]; then
+    touch "$config_file_backup"
+    (( $? )) && fatal "Could not create configuration file at location: $config_file_backup"
 fi
 
-loadConfig "conf" "backupRoot" "" < "$configFile"
+load-config "conf" "backup_root" "" < "$config_file"
 
 # Print the title
-echo " ${C_REDBBL}-Tootils-${C_RESET}"
+echo " ${C_RED_B_BL}-Tootils-${C_RESET}"
 
 # Main
 case "$op" in
-    bk|bkg|bkd|bkdg|back)
-        loadModule "backup"
+    bk|bkg|back|backg)
+        load-module "backup"
         Backup "$op" "$@"
         ;;
     help)
-        loadModule "help"
+        load-module "help"
         Help "$@"
         ;;
     "")

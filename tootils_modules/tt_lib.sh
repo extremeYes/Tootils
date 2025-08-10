@@ -37,42 +37,44 @@ deb() {
 C_RESET=$'\e[m'
 C_RED=$'\e[31m'
 C_BLUE=$'\e[34m'
-C_GREENB=$'\e[1;32m'
-C_REDBBL=$'\e[1;5;31m'
+C_GREEN_B=$'\e[1;32m'
+C_RED_B_BL=$'\e[1;5;31m'
 C_UNDERLINE=$'\e[4m'
-C_NOTUNDERLINE=$'\e[24m'
+C_NOT_UNDERLINE=$'\e[24m'
 C_STRIKETHROUGH=$'\e[9m'
 
 SEPARATOR='~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~'
 
-# These are for informative output regarding Tootils operations
-runOp() {
-    # operation == $@
+# These three functions are for informative output regarding Tootils operations
+run-op() {
     local op="$1"
+    # operation == $@
     shift
 
     echo $SEPARATOR
-    echo "Tootils Running Command: $C_UNDERLINE$op$C_NOTUNDERLINE"
-    echo "$*$C_BLUE"
+    echo "Tootils Running Command: $C_UNDERLINE${op}$C_NOT_UNDERLINE"
+    echo "${*}$C_BLUE"
     "$@"
-    echo "${C_RESET}Tootils Ran Command: $C_UNDERLINE$op$C_NOTUNDERLINE"
-    echo "$*"
+    echo "${C_RESET}Tootils Ran Command: $C_UNDERLINE${op}$C_NOT_UNDERLINE"
+    echo "${*}"
     echo $SEPARATOR
 }
 
-runOpBatch() {
-    # operation == $@
+print-batch-head() {
     local op="$1"
-    shift
 
-    echo "$C_GREENB$SEPARATOR"
-    echo "Tootils Running Batch: $C_UNDERLINE$op$C_RESET"
-    "$@"
-    echo "${C_GREENB}Tootils Ran Batch: $C_UNDERLINE$op$C_NOTUNDERLINE"
+    echo "$C_GREEN_B$SEPARATOR"
+    echo "Tootils Running Batch: $C_UNDERLINE${op}$C_RESET"
+}
+
+print-batch-tail() {
+    local op="$1"
+
+    echo "${C_GREEN_B}Tootils Ran Batch: $C_UNDERLINE${op}$C_NOT_UNDERLINE"
     echo "$SEPARATOR$C_RESET"
 }
 
-fileToArray() {
+file-to-array() {
     # file < stdin
     local -n arr=$1
 
@@ -85,37 +87,13 @@ fileToArray() {
     done
 }
 
-# deprecating......
-forEachLine() {
-    # file < stdin
-
-    local line
-    while read -r line || [[ -n "$line" ]]; do
-        line=${line%$'\r'} # delete CR
-        [[ -z "$line" ]] && continue
-
-        "$@" "$line"
-    done
-}
-
-# # receive the file from stdin < "$file"
-# # !! -> scope the corresponding stdin to
-# # all calls to this function at once
-# forOneLine() {
-#     if read -r line || [[ -n "$line" ]]; then
-#         line=${line%$'\r'} # delete CR
-#         [[ -z "$line" ]] && return 1
-#         "$@" "$line"
-#     fi
-# }
-
-loadConfig() {
+load-config() {
     # configFile < stdin
     local -n table=$1
-    local requiredEntries=$2
-    local optionalEntries=$3
+    local required_entries=$2
+    local optional_entries=$3
 
-    local entry value isValid line
+    local entry value is_valid line
 
     while read -r line || [[ -n "$line" ]]; do
         line=${line%$'\r'} # delete CR
@@ -128,11 +106,11 @@ loadConfig() {
         entry=${line%%=*}
         value=${line#*=}
 
-        isValid=false
-        for x in $requiredEntries $optionalEntries; do
-            [[ $entry == "$x" ]] && isValid=true && break
+        is_valid=false
+        for x in $required_entries $optional_entries; do
+            [[ $entry == "$x" ]] && is_valid=true && break
         done
-        if ! $isValid; then
+        if ! $is_valid; then
             fatal "Invalid entry in config file: $entry"
         fi
 
@@ -143,7 +121,7 @@ loadConfig() {
         table[$entry]=$value
     done
 
-    for x in $requiredEntries; do
+    for x in $required_entries; do
         if [[ -z ${table[$x]} ]]; then
             fatal "Missing required entry in config file: $x"
         fi

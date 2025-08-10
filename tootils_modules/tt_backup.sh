@@ -4,76 +4,85 @@ Backup() {
     local op=$1
     local arg=$2
 
-    local BACKUPSUBDIR=TootilsBackup
-    local destinationDir
+    local BACKUP_SUBDIR=TootilsBackup
+    local destination_dir
 
-    if ! destinationDir=$(readlink -e -- "${conf[backupRoot]}"); then
-        erro "Backup device is disconnected or non-existent: ${conf[backupRoot]}"
+    if ! destination_dir=$(readlink -e -- "${conf[backup_root]}"); then
+        erro "Backup device is disconnected or non-existent: ${conf[backup_root]}"
         return
     fi
 
-    destinationDir+="/$BACKUPSUBDIR/"
+    destination_dir+="/$BACKUP_SUBDIR/"
 
     case "$op" in
-        bk|bkg|bkd|bkdg)
-            bkItem "$op" "$arg"
+        bk|bkg)
+            bk-item "$op" "$arg"
             ;;
-        back)
-            bkBatch "$op" "$arg"
+        back|backg)
+            bk-batch "$op"
             ;;
     esac
 }
 
-# we'll replace 'forEachLine' with 'fileToArray' functionality
-# just like bkItem does.
-bkBatch() {
+bk-batch() {
     local op=$1
-    local subOp=$2
 
-    if [[ "$subOp" =~ ^bkd?g?$ || -z "$subOp" ]]; then
-        runOpBatch "$op" forEachLine bkItem "${subOp:-bkd}" < "$configFileBackup" # TODO: move list to config
-    else
-        erro "Use (bk/bkg/bkd/bkdg) as a Backup mode instead of: $subOp"
-    fi
+    local list op_i
+
+    case "$op" in
+        "back")
+            op_i=bk
+            ;;
+        "backg")
+            op_i=bkg
+            ;;
+        *)
+            fatal-assert "Invalid batch operation name in bk-batch: $op"
+            ;;
+    esac
+
+    file-to-array list < "$config_file_backup"
+
+    print-batch-head "$op"
+
+    for item in "${list[@]}"; do
+        bk-item "$op_i" "$item"
+    done
+
+    print-batch-tail "$op"
 }
 
-bkItem() {
+bk-item() {
     local op=$1
-    local srcDir=$2
+    local src_dir=$2
 
-    local IGNOREFILE=.tootignore
-    local trueSrcDir
-    local -a ignoreList
+    local IGNORE_FILENAME=.tootignore
+    local true_src_dir
+    local -a ignore_list
 
-    [[ "$srcDir" == "" ]] && { erro "Specify a directory to backup."; return; }
+    [[ "$src_dir" == "" ]] && { erro "Specify a directory to backup."; return; }
 
-    [[ "$srcDir" =~ ^# ]] && { echo "Skipped: $C_STRIKETHROUGH${srcDir}$C_RESET"; return; }
+    [[ "$src_dir" =~ ^# ]] && { echo "Skipped: $C_STRIKETHROUGH${src_dir}$C_RESET"; return; }
 
     # this one also removes the trailing slash!
-    trueSrcDir=$(canonicalPath "${srcDir/#\~/$HOME}") || { erro "No such directory: $srcDir"; return; }
+    true_src_dir=$(canonical-path "${src_dir/#\~/$HOME}") || { erro "No such directory: $src_dir"; return; }
 
     # pattern-ignoring logic
-    if [[ -f "$trueSrcDir/$IGNOREFILE" ]]; then
-        fileToArray ignoreList < "$trueSrcDir/$IGNOREFILE"
+    if [[ -f "$true_src_dir/$IGNORE_FILENAME" ]]; then
+        file-to-array ignore_list < "$true_src_dir/$IGNORE_FILENAME"
 
         local index
-        for index in "${!ignoreList[@]}"; do
-            ignoreList[$index]="--exclude='${ignoreList[$index]}'"
+        for index in "${!ignore_list[@]}"; do
+            ignore_list[$index]="--exclude='${ignore_list[$index]}'"
         done
     fi
 
     case "$op" in
         bk)
-            runOp "$op" rsync -avh -n --progress "${ignoreList[@]}" -- "$trueSrcDir" "$destinationDir"
+            run-op "$op" rsync -avh -n --progress --delete "${ignore_list[@]}" -- "$true_src_dir" "$destination_dir"
             ;;
         bkg)
-            runOp "$op" rsync -avh --progress "${ignoreList[@]}" -- "$trueSrcDir" "$destinationDir"
-            ;;
-        bkd)
-            runOp "$op" rsync -avh -n --progress --delete "${ignoreList[@]}" -- "$trueSrcDir" "$destinationDir"
-            ;;
-        bkdg)
-            runOp "$op" rsync -avh --progress --delete "${ignoreList[@]}" -- "$trueSrcDir" "$destinationDir"
+            run-op "$op" rsync -avh --progress --delete "${ignore_list[@]}" -- "$true_src_dir" "$destination_dir"
             ;;
     esac
 }
