@@ -7,12 +7,12 @@
 # Tootils works as a dispatcher of *Operations* ($op), which are handled
 # by their respective modules and visually presented to the user
 # surrounded by text that displays the external command ran.
-# This is handled by runOP() and runOpBatch().
+# This is handled by run-op() and print-batch-*().
 #
 # Functions starting with a capital letter are the entry point
 # of the module with the same name.
 #
-# Function signature is expressed as the first group of lines
+# Function signature is expressed in the first group of lines
 # at the top of the function.
 #
 
@@ -22,7 +22,8 @@ shift
 declare SYSTEM HERE
 #shellcheck disable=SC2034
 declare -A conf
-declare file_dir file_conf file_conf_backup
+declare conf_dir
+declare -A conf_file
 
 # ===== Essential functions =====
 
@@ -55,14 +56,14 @@ canonical-path() {
     while true; do
         old_path=$path
         path=$(readlink -e -- "$path")
-        (( $? )) && return 1
+        (($?)) && return 1
         [[ $path == "$old_path" ]] && break
     done
 
     echo "$path"
 }
 
-# ========== Main body ==========
+# ========== Header ==========
 
 # Tootils path
 HERE=$(canonical-path "$0")
@@ -78,37 +79,48 @@ else
     SYSTEM=lin
 fi
 
-# Configuration logic
+# ========== Configuration Logic ==========
+
 if [[ -z $XDG_CONFIG_HOME ]]; then
     XDG_CONFIG_HOME="$HOME/.config"
 elif [[ $SYSTEM == 'win' ]]; then
     XDG_CONFIG_HOME=$(cygpath -u "$XDG_CONFIG_HOME")
 fi
 
-file_dir="$XDG_CONFIG_HOME/tootils"
-file_conf="$file_dir/tootils.conf"
-file_conf_backup="$file_dir/backup.conf"
+# if [[ -z $XDG_DATA_HOME ]]; then
+#     XDG_DATA_HOME="$HOME/.local/state"
+# elif [[ $SYSTEM == 'win' ]]; then
+#     XDG_DATA_HOME=$(cygpath -u "$XDG_DATA_HOME")
+# fi
 
-# this could be improved as it looks the dirtiest of all hehe
-# oh, I know, I'll make a `tootils.conf.template` and copy its data
-if [[ ! -f $file_conf ]]; then
-    mkdir -p "$file_dir"
-    touch "$file_conf"
-    (( $? )) && fatal "Could not create configuration file at location: $file_conf"
+conf_dir="$XDG_CONFIG_HOME/tootils"
 
-    echo -e "# Tootils fresh config\n# Comment lines start with #\n# Fill the following required entries:\n\nbackup_root=\n" > "$file_conf"
-
-    echo "Configuration file created at location: $file_conf"
-    echo "Please set it up with your desired values and relaunch Tootils."
-    exit 0
-fi
-# hastily written. might be fine though
-if [[ ! -f $file_conf_backup ]]; then
-    touch "$file_conf_backup"
-    (( $? )) && fatal "Could not create configuration file at location: $file_conf_backup"
+if [[ ! -d $conf_dir ]]; then
+    mkdir -p "$conf_dir"
+    (($?)) && fatal "Could not create configuration directory: $conf_dir"
 fi
 
-load-config "conf" "backup_root" "" < "$file_conf"
+# Add new configurations filenames here:
+for x in tootils backup dotlinks; do
+    conf_file[$x]="$conf_dir/$x.conf"
+done
+
+for x in "${!conf_file[@]}"; do
+    if [[ ! -f ${conf_file[$x]} ]]; then
+        cp "$HERE/tootils_conf_file_templates/$x.conf" "${conf_file[$x]}"
+        (($?)) && fatal "Could not create configuration file: ${conf_file[$x]}"
+
+        did_create_a_file_and_should_exit=yes
+        echo "Configuration file created: ${conf_file[$x]}"
+        echo "Please set it up with your desired values."
+    fi
+done
+
+[[ -n $did_create_a_file_and_should_exit ]] && exit 0
+
+load-config "conf" "backup_root" "" < "${conf_file[tootils]}"
+
+# ========== Main Body ==========
 
 # Print the title
 echo " ${C_RED_B_BL}-Tootils-${C_RESET}"

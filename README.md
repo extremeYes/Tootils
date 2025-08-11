@@ -25,7 +25,7 @@ Use this configuration to select your backups drive. Use a full path, in which a
 
 ### Core Utils
 
-`readlink`, `mkdir`, `touch`, `cygpath` (Windows only).  
+`readlink`, `mkdir`, `cp`, `cygpath` (Windows only).  
 That's it, the rest are Bash built-ins.
 
 ## Installation

@@ -25,13 +25,14 @@ deb() {
 # trap - DEBUG
 
 # # Alt Screen
-# # this is just a random note
 # alt() {
 #     tput smcup
 # }
 # altx() {
 #     tput rmcup
 # }
+
+# ========== Constants ==========
 
 # ANSI Colors
 C_RESET=$'\e[m'
@@ -45,7 +46,8 @@ C_STRIKETHROUGH=$'\e[9m'
 
 SEPARATOR='~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~'
 
-# These three functions are for informative output regarding Tootils operations
+# ========== Visual Output ==========
+
 run-op() {
     local op=$1
     # operation == $@
@@ -73,6 +75,8 @@ print-batch-tail() {
     echo "${C_GREEN_B}Tootils Ran Batch: $C_UNDERLINE${op}$C_NOT_UNDERLINE"
     echo "$SEPARATOR$C_RESET"
 }
+
+# ========== File Operations ==========
 
 file-to-array() {
     # file < stdin
