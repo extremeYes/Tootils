@@ -15,15 +15,9 @@ Backup() {
     destination_dir+="/$BACKUP_SUBDIR/"
 
     case "$op" in
-        bk|bkg)
-            bk-item "$op" "$arg"
-            ;;
-        back|backg)
-            bk-batch "$op"
-            ;;
-        *)
-            fatal-assert "Invalid operation name in Backup: $op"
-            ;;
+        bk|bkg) bk-item "$op" "$arg";;
+        back|backg) bk-batch "$op";;
+        *) fatal-assert "Invalid operation name in Backup: $op";;
     esac
 }
 
@@ -33,25 +27,18 @@ bk-batch() {
     local list op_i
 
     case "$op" in
-        back)
-            op_i=bk
-            ;;
-        backg)
-            op_i=bkg
-            ;;
-        *)
-            fatal-assert "Invalid batch operation name in bk-batch: $op"
-            ;;
+        back) op_i=bk;;
+        backg) op_i=bkg;;
+        *) fatal-assert "Invalid batch operation name in bk-batch: $op";;
     esac
 
-    file-to-array list < "$file_conf_backup"
+    file-to-array list < "${conf_file[backup]}"
 
     print-batch-head "$op"
-
+    local item
     for item in "${list[@]}"; do
         bk-item "$op_i" "$item"
     done
-
     print-batch-tail "$op"
 }
 
@@ -59,7 +46,7 @@ bk-item() {
     local op=$1
     local src_dir=$2
 
-    local IGNORE_FILENAME=.tootignore
+    local IGNORE_FILENAME=.ttignore
     local true_src_dir
     local -a ignore_list
 

@@ -6,7 +6,7 @@
 # that might or might not get picked up by the main program.
 #
 # The most basic and fundamental functions live in the
-# "Essential functions" section in the toot executable instead,
+# "Essential functions" section in the tt executable instead,
 # simply because they are required to exist before loading the library.
 #
 

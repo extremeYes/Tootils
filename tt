@@ -19,7 +19,7 @@
 declare op=$1
 shift
 
-declare SYSTEM HERE
+declare HERE SYSTEM
 #shellcheck disable=SC2034
 declare -A conf
 declare conf_dir
@@ -139,7 +139,7 @@ case "$op" in
         # to be improved
         # this should and will print usage information instead of crying
         echo "usage:"
-        echo "    'toot <subcommand> [arg]'"
+        echo "    'tt <subcommand> [arg]'"
         echo "usage and help under construction. yeesh!"
         ;;
     *)
