@@ -1,5 +1,5 @@
 
-# Tootils - ! outdated README ! - bkd deleted
+# Tootils
 
 What do you get when you combine "tools" with "utils"? A silly redundant name.
 
@@ -8,9 +8,9 @@ MacOS? Undefined behavior.
 
 ## Features
 
-bk|bkg|bkd|bkdg) `rsync` wrapper that takes *one* path and creates a mirror in your configured backups drive.  
-back) Reads your configured list of paths and backs them all up.  
-link) [planned] to be a tracked dotfiles symlinker.
+- **Backup**: `rsync` wrapper that takes a path and creates a mirror in your configured backups drive.  
+You can also configure a list of paths and back them all up in a single command.
+- **DotLink**: [planned] to be a tracked dotfiles symlinker.
 
 Back-up logic avoids accidentally deleting files by ensuring the source directory argument does *not* contain a trailing slash (infamous `rsync` trap), and by creating a subdirectory in the destination.  
 Tootils also has pretty output. :) Apart from its glorious elegance, it will show the external command that it runs.  
@@ -42,18 +42,17 @@ That's it, the rest are Bash built-ins.
 
 ### Commands
 
-- Use `tt bk <dir>` to back up a directory into your configured drive. Only it will show a dry run for you to check before running, so you should then:
+- Use `tt bk <dir>` to make a mirror backup of a directory in your configured drive. Only it will show a dry run for you to check before running, so you should then:
 - Use `tt bkg <dir>` to actually execute said backup. (`g` for go)
-- Use `tt bkd <dir>` to approve deletion of extraneous files, making the destination a *true mirror* of the source. (`d` for delete). If you already copied files with `bkg`, this will only show what will be deleted, which is handy.
-- Use `tt bkdg <dir>` to confirm and execute the full mirroring operation.
-- Use `tt back [operation]` to read your list of configured directories and run the desired backup operation on all of them. Example: `tt back`, read output, then `tt back bkdg` to confirm and execute a full mirror of all your files.
-- Oh, right! You can add a `.ttignore` file at the ***root*** of your source directory. Any patterns listed in that file will be completely ignored by `rsync`. ;)
+- Use `tt back` to read your list of configured directories and back them up. (dry run)
+- Use `tt backg` to confirm and execute a full list backup.
+- Oh, right! You can add a `.ttignore` file at the ***root*** of your source directory. Any patterns listed in that file will be completely ignored by `rsync`.
 
 ### Config
 
 Tootils will create these files in your config location:
 
-- `tootils.conf`. For global variables. Currently `backupRoot`. Set it to a full path to your backups destination (i.e. `/e`, `/mnt/backups`).
+- `tootils.conf`. For global variables. Currently `backup_root`. Set it to a full path to your backups destination (i.e. `/e`, `/mnt/backups`).
 - `backup.conf`. A list of source directories to be backed up by the `back` subcommand. Full path on each line. You can skip directories by commenting them (start the line with `#`).
 
 ## Footnote
