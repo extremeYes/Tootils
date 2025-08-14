@@ -7,7 +7,7 @@ Backup() {
     local BACKUP_SUBDIR=TootilsBackup
     local destination_dir
 
-    if ! destination_dir=$(readlink -e -- "${conf[backup_root]}"); then
+    if ! destination_dir=$(canonical-path "${conf[backup_root]}"); then
         erro "Backup device is disconnected or non-existent: ${conf[backup_root]}"
         return
     fi
