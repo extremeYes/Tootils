@@ -110,13 +110,15 @@ for x in "${!conf_file[@]}"; do
         cp "$HERE/tootils_conf_file_templates/$x.conf" "${conf_file[$x]}"
         (($?)) && fatal "Could not create configuration file: ${conf_file[$x]}"
 
-        did_create_a_file_and_should_exit=yes
         echo "Configuration file created: ${conf_file[$x]}"
-        echo "Please set it up with your desired values."
+        new_config_file_created=yes
     fi
 done
 
-[[ -n $did_create_a_file_and_should_exit ]] && exit 0
+if [[ -n $new_config_file_created ]]; then
+    echo "Please set up your new configuration file(s) with your desired values."
+    exit 0
+fi
 
 load-config "conf" "backup_root" "" < "${conf_file[tootils]}"
 

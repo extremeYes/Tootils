@@ -1,5 +1,5 @@
 
-PrintHelp() {
+Help() {
 	case "$1" in
 		foo)
 			# if command -v rsync &>/dev/null; then

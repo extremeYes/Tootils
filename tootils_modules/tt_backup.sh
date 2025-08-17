@@ -57,6 +57,7 @@ bk-item() {
     # this one also removes the trailing slash!
     true_src_dir=$(canonical-path "${src_dir/#\~/$HOME}") || { erro "No such directory: $src_dir"; return; }
 
+    # TODO: build a separate array so that we pass "--exclude" and "pattern" as separate arguments! <- IMPORTANT
     # pattern-ignoring logic
     if [[ -f "$true_src_dir/$IGNORE_FILENAME" ]]; then
         file-to-array ignore_list < "$true_src_dir/$IGNORE_FILENAME"

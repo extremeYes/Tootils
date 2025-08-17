@@ -48,6 +48,7 @@ SEPARATOR='~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~'
 
 # ========== Visual Output ==========
 
+# TODO: Use printf '%q ' instead of $*
 run-op() {
     local op=$1
     # operation == $@
