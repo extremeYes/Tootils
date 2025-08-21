@@ -44,29 +44,31 @@ C_UNDERLINE=$'\e[4m'
 C_NOT_UNDERLINE=$'\e[24m'
 C_STRIKETHROUGH=$'\e[9m'
 
-SEPARATOR='~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~'
+SEPARATOR=" ${C_STRIKETHROUGH}                                                            ${C_RESET}"
+SEPARATOR_BATCH=' ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~'
 
 # ========== Visual Output ==========
 
-# TODO: Use printf '%q ' instead of $*
 run-op() {
     local op=$1
     # operation == $@
     shift
 
-    echo $SEPARATOR
+    echo "$SEPARATOR"
     echo "Tootils Running Command: $C_UNDERLINE${op}$C_NOT_UNDERLINE"
-    echo "${*}$C_BLUE"
+    printf '%q ' "$@"
+    echo "$C_BLUE"
     "$@"
     echo "${C_RESET}Tootils Ran Command: $C_UNDERLINE${op}$C_NOT_UNDERLINE"
-    echo "${*}"
-    echo $SEPARATOR
+    printf '%q ' "$@"
+    echo
+    echo "$SEPARATOR"
 }
 
 print-batch-head() {
     local op=$1
 
-    echo "$C_GREEN_B$SEPARATOR"
+    echo "$C_GREEN_B$SEPARATOR_BATCH"
     echo "Tootils Running Batch: $C_UNDERLINE${op}$C_RESET"
 }
 
@@ -74,7 +76,7 @@ print-batch-tail() {
     local op=$1
 
     echo "${C_GREEN_B}Tootils Ran Batch: $C_UNDERLINE${op}$C_NOT_UNDERLINE"
-    echo "$SEPARATOR$C_RESET"
+    echo "$SEPARATOR_BATCH$C_RESET"
 }
 
 # ========== File Operations ==========
