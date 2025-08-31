@@ -132,19 +132,20 @@ case "$op" in
     bk|bkg|back|backg)
         load-module "backup"
         Backup "$op" "$@"
-        ;;
+    ;;
     help)
         load-module "help"
         Help "$@"
-        ;;
+    ;;
     "")
         # to be improved
         # this should and will print usage information instead of crying
         echo "usage:"
         echo "    'tt <subcommand> [arg]'"
         echo "usage and help under construction. yeesh!"
-        ;;
+    ;;
     *)
         erro "Unknown Tootils command: $op"
-        ;;
+    ;;
 esac
+exit $?
