@@ -37,6 +37,7 @@ fatal() {
     exit 1
 }
 
+#shellcheck disable=SC2329
 fatal-assert() {
     erro "  Fatal Assertion Failure (bug):"
     fatal "    $*"
@@ -44,7 +45,7 @@ fatal-assert() {
 
 #shellcheck disable=SC1090
 load-module() {
-    local mod="$HERE/tootils_modules/tt_$1.sh"
+    local mod="$HERE/modules/tt_$1.sh"
 
     source "$mod" 2>/dev/null || fatal "Could not load module: $mod"
 }
@@ -100,14 +101,14 @@ if [[ ! -d $conf_dir ]]; then
     (($?)) && fatal "Could not create configuration directory: $conf_dir"
 fi
 
-# Add new configurations filenames here:
+# Add new configuration filenames here:
 for x in tootils backup dotlinks; do
     conf_file[$x]="$conf_dir/$x.conf"
 done
 
 for x in "${!conf_file[@]}"; do
     if [[ ! -f ${conf_file[$x]} ]]; then
-        cp "$HERE/tootils_conf_file_templates/$x.conf" "${conf_file[$x]}"
+        cp "$HERE/conf_file_templates/$x.conf" "${conf_file[$x]}"
         (($?)) && fatal "Could not create configuration file: ${conf_file[$x]}"
 
         echo "Configuration file created: ${conf_file[$x]}"
@@ -142,7 +143,6 @@ case "$op" in
         # this should and will print usage information instead of crying
         echo "usage:"
         echo "    'tt <subcommand> [arg]'"
-        echo "usage and help under construction. yeesh!"
     ;;
     *)
         erro "Unknown Tootils command: $op"
