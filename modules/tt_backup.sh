@@ -11,11 +11,7 @@ Backup() {
         erro "Backup device is disconnected or non-existent: ${conf[backup_root]}"
         return
     fi
-
-    if [[ ! -d $destination_dir ]]; then
-        erro "Backup destination is not a directory: ${conf[backup_root]}"
-        return
-    fi
+    [[ -d $destination_dir ]] || { erro "Backup destination is not a directory: ${conf[backup_root]}"; return; }
 
     destination_dir+="/$BACKUP_SUBDIR/"
 
@@ -57,7 +53,7 @@ bk-item() {
 
     [[ "$src_dir" == "" ]] && { erro "Specify a directory to backup."; return; }
 
-    [[ "$src_dir" =~ ^# ]] && { echo "=== Skipped: $C_STRIKETHROUGH${src_dir}$C_RESET"; return; }
+    [[ "$src_dir" =~ ^# ]] && { noti "Skipped: $C_STRIKETHROUGH${src_dir}$C_RESET"; return; }
 
     # this one also removes the trailing slash!
     true_src_dir=$(canonical-path "${src_dir/#\~/$HOME}") || { erro "No such directory: $src_dir"; return; }

@@ -5,8 +5,8 @@
 # While powerful and serious, this library has unused functionality
 # that might or might not get picked up by the main program.
 #
-# The most basic and fundamental functions live in the
-# "Essential functions" section in the tt executable instead,
+# The most basic and fundamental functions also live in the
+# "Essential Functions" section in the tt executable,
 # simply because they are required to exist before loading the library.
 #
 
@@ -38,6 +38,7 @@ deb() {
 C_RESET=$'\e[m'
 C_RED=$'\e[31m'
 C_BLUE=$'\e[34m'
+C_PURPLE=$'\e[35m'
 C_GREEN_B=$'\e[1;32m'
 C_RED_B_BL=$'\e[1;5;31m'
 C_UNDERLINE=$'\e[4m'
@@ -46,6 +47,48 @@ C_STRIKETHROUGH=$'\e[9m'
 
 SEPARATOR=" ${C_STRIKETHROUGH}                                                            ${C_RESET}"
 SEPARATOR_BATCH=' ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~'
+
+# ========== Essential Functions ==========
+
+noti() {
+    echo "$C_PURPLE#>>>$C_RESET${*}"
+}
+
+erro() {
+    echo "$C_RED!>>>$C_RESET${*}" >&2
+    return 1
+}
+
+fatal() {
+    erro "$*"
+    exit 1
+}
+
+fatal-assert() {
+    erro "  Fatal Assertion Failure (bug):"
+    fatal "    $*"
+}
+
+#shellcheck disable=SC1090
+load-module() {
+    local mod="$HERE/modules/tt_$1.sh"
+
+    source "$mod" 2>/dev/null || fatal "Could not load module: $mod"
+}
+
+canonical-path() {
+    local path=$1
+
+    local old_path
+    while true; do
+        old_path=$path
+        path=$(readlink -e -- "$path")
+        (($?)) && return 1
+        [[ $path == "$old_path" ]] && break
+    done
+
+    echo "$path"
+}
 
 # ========== Visual Output ==========
 

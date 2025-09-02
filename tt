@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
-# set -u
-# set -eo pipefail
 
-# ========== Tootils ==========
+#shellcheck disable=SC2329
+
+# ==================== Tootils ====================
 #
 # Tootils works as a dispatcher of *Operations* ($op), which are handled
 # by their respective modules and visually presented to the user
@@ -25,19 +25,22 @@ declare -A conf
 declare conf_dir
 declare -A conf_file
 
-# ===== Essential functions =====
+# ========== Essential Functions ========== copied from tt_lib.sh
+
+noti() {
+    echo "$C_PURPLE#>>>$C_RESET${*}"
+}
 
 erro() {
-    echo "$C_RED!$C_RESET${*}" >&2
+    echo "$C_RED!>>>$C_RESET${*}" >&2
     return 1
 }
 
 fatal() {
-    echo "$C_RED!$C_RESET${*}" >&2
+    erro "$*"
     exit 1
 }
 
-#shellcheck disable=SC2329
 fatal-assert() {
     erro "  Fatal Assertion Failure (bug):"
     fatal "    $*"
