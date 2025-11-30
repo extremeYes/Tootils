@@ -145,7 +145,7 @@ case "$op" in
         # to be improved
         # this should and will print usage information instead of crying
         echo "usage:"
-        echo "    'tt <subcommand> [arg]'"
+        echo "    tt <subcommand> [arg]"
     ;;
     *)
         erro "Unknown Tootils command: $op"
