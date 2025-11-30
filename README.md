@@ -14,7 +14,7 @@ You can also configure a list of paths and back them all up in a single command.
 
 Back-up logic avoids accidentally deleting files by ensuring the source directory argument does *not* contain a trailing slash (infamous `rsync` trap), and by creating a subdirectory in the destination.  
 Tootils also has pretty output. :) Apart from its glorious elegance, it will show the external command that it runs.  
-Optional `.ttignore` list to skip files/sub-directories.
+Optional `.tootignore` list to skip files/sub-directories.
 
 Tootils creates a configuration file in `$XDG_CONFIG_HOME/tootils`, or `~/.config/tootils` if XDG is unset.  
 Use this configuration to select your backups drive. Use a full path, in which a `TootilsBackups` sub-dir will be created.
@@ -33,12 +33,12 @@ That's it, the rest are Bash built-ins.
 > This part should be improved for noobs
 
 - clone the repo
-- `chmod +x tt` if on Linux
-- either add it to your $PATH or make an alias with `path/to/Tootils/tt`
+- `chmod +x toot` if on Linux
+- either add it to your $PATH or make an alias with `path/to/Tootils/toot`
 
 ## Usage
 
-`tt <subcommand> [arg]`
+`toot <subcommand> [arg]`
 
 ### Commands
 
@@ -57,6 +57,6 @@ Tootils will create these files in your config location:
 
 ## Footnote
 
-This is a draft of a README. The utility will use `tt help` to display all of this in a higher quality way.  
+This is a draft of a README. The utility will use `toot help` to display all of this in a higher quality way.  
 Although now that I wrote this, it's kind of cool.  
-The actual `tt` script acts as a generic dispatcher for arbitrary subcommands. It's easy to add functionality now.
+The actual `toot` script acts as a generic dispatcher for arbitrary subcommands. It's easy to add functionality now.
