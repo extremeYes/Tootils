@@ -131,24 +131,28 @@ load-config "conf" "backup_root" "" < "${conf_file[tootils]}"
 # Print the title
 echo "  ${C_RED_B_BL}-Tootils-${C_RESET}"
 
-# Main
+# MAIN
 case "$op" in
     bk|bkg|back|backg)
         load-module "backup"
         Backup "$op" "$@"
     ;;
+
     help)
         load-module "help"
         Help "$@"
     ;;
+
     "")
         # to be improved
         # this should and will print usage information instead of crying
         echo "usage:"
         echo "    'tt <subcommand> [arg]'"
     ;;
+
     *)
         erro "Unknown Tootils command: $op"
     ;;
-esac
-exit $?
+
+esac    ## explicit final case statement
+exit $? ## <-------
